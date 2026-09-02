@@ -21,9 +21,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏨 Buscar Huésped <span class="badge">Backend Propio</span></h1>
+        <h1>🏨 Buscar Huésped <span class="badge">GitHub Pages</span></h1>
         <div class="info">
-            ✅ Sin proxies - Consulta directa a tu servidor
+            ✅ Funciona sin PHP - Consulta directa a Perú API
         </div>
         <p>Ingresa el DNI para obtener nombre y apellidos</p>
         
@@ -45,8 +45,10 @@
     </div>
 
     <script>
-        // AHORA CONSULTA A TU PROPIO BACKEND
-        const API_URL = 'api_dni.php?dni=';
+        // ⚠️ IMPORTANTE: Esta es la configuración que usa un proxy para evitar problemas de CORS
+        const PROXY = 'https://api.allorigins.win/raw?url=';
+        const API_URL = PROXY + 'https://peruapi.com/api/dni/';
+        const API_KEY = 'c9fce1d6a32f5b5d0ca986f76595508c';
 
         async function consultarDNI() {
             const dni = document.getElementById('dniInput').value.trim();
@@ -60,7 +62,7 @@
             document.getElementById('loading').style.display = 'block';
 
             try {
-                const url = API_URL + dni;
+                const url = `${API_URL}${dni}?api_token=${API_KEY}`;
                 console.log('Consultando:', url);
                 
                 const response = await fetch(url);
