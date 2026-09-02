@@ -23,7 +23,7 @@
     <div class="container">
         <h1>🏨 Buscar Huésped <span class="badge">GitHub Pages</span></h1>
         <div class="info">
-            ✅ Usando JavaScript + Proxy CORS
+            ✅ Consulta de DNI usando el endpoint correcto
         </div>
         <p>Ingresa el DNI para obtener nombre y apellidos</p>
         
@@ -45,12 +45,13 @@
     </div>
 
     <script>
-        // 🔑 TU API KEY (copia la que ves en tu panel de Perú API)
+        // 🔑 TU API KEY (copia la que ves en tu panel)
         const API_KEY = 'c9fce1d6a32f5b5d0ca986f76595508c';
         
-        // Proxy para evitar CORS en GitHub Pages
+        // URL con el formato correcto para DNI
+        const BASE_URL = 'https://peruapi.com/api.php?json=dni&id=';
         const PROXY = 'https://corsproxy.io/?';
-        const API_URL = PROXY + encodeURIComponent('https://peruapi.com/api/dni/');
+        const API_URL = PROXY + encodeURIComponent(BASE_URL);
 
         async function consultarDNI() {
             const dni = document.getElementById('dniInput').value.trim();
@@ -64,7 +65,8 @@
             document.getElementById('loading').style.display = 'block';
 
             try {
-                const url = `${API_URL}${dni}?api_token=${API_KEY}`;
+                // Construir URL con DNI y API Key
+                const url = `${API_URL}${dni}&api_token=${API_KEY}`;
                 console.log('Consultando:', url);
                 
                 const response = await fetch(url);
