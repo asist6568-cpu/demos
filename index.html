@@ -23,7 +23,7 @@
     <div class="container">
         <h1>🏨 Buscar Huésped <span class="badge">GitHub Pages</span></h1>
         <div class="info">
-            ✅ Funciona sin PHP - Consulta directa a Perú API
+            ✅ Usando JavaScript + Proxy CORS
         </div>
         <p>Ingresa el DNI para obtener nombre y apellidos</p>
         
@@ -45,10 +45,12 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Esta es la configuración que usa un proxy para evitar problemas de CORS
-        const PROXY = 'https://api.allorigins.win/raw?url=';
-        const API_URL = PROXY + 'https://peruapi.com/api/dni/';
+        // 🔑 TU API KEY (copia la que ves en tu panel de Perú API)
         const API_KEY = 'c9fce1d6a32f5b5d0ca986f76595508c';
+        
+        // Proxy para evitar CORS en GitHub Pages
+        const PROXY = 'https://corsproxy.io/?';
+        const API_URL = PROXY + encodeURIComponent('https://peruapi.com/api/dni/');
 
         async function consultarDNI() {
             const dni = document.getElementById('dniInput').value.trim();
@@ -72,6 +74,10 @@
                 }
                 
                 const data = await response.json();
+
+                if (data.code === 401) {
+                    throw new Error('❌ API Key inválida. Revisa tu clave en el panel.');
+                }
 
                 if (data.code !== 200) {
                     throw new Error(data.mensaje || 'Error al consultar');
