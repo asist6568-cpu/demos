@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'El DNI debe tener 8 dígitos.' });
   }
 
-  const apiKey = '948485d617fa5e7914d3d2a1161ee897';
+  const apiKey = 'a2edc72e2ca09ee80ff7f8ef36f57320';
 
   try {
     const apiResponse = await fetch(`https://peruapi.com/api/dni/${dni}`, {
