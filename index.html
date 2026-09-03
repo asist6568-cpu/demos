@@ -1,123 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta DNI - Hotel</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; background: #f0f2f5; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, button { padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 5px; }
-        input { width: 70%; }
-        button { width: 25%; background: #1a73e8; color: white; border: none; cursor: pointer; }
-        button:hover { background: #1557b0; }
-        .result { margin-top: 20px; padding: 15px; border-radius: 5px; background: #f8f9fa; display: none; }
-        .error { color: red; margin-top: 10px; display: none; }
-        .loading { color: #666; margin-top: 10px; display: none; }
-        h1 { color: #1a73e8; }
-        .badge { background: #34a853; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
-        .info { background: #e8f0fe; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Consulta DNI</title>
+  <style>
+    body { font-family: sans-serif; background: #0f172a; color: #fff; padding: 40px; display: flex; justify-content: center; }
+    .box { background: #1e293b; padding: 20px; border-radius: 8px; width: 400px; }
+    input, button { padding: 10px; border-radius: 4px; border: none; font-size: 1rem; }
+    input { width: 65%; margin-right: 5px; background: #334155; color: #fff; }
+    button { background: #0284c7; color: #fff; cursor: pointer; }
+    pre { background: #000; padding: 12px; border-radius: 6px; overflow-x: auto; color: #38bdf8; margin-top: 15px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🏨 Buscar Huésped <span class="badge">GitHub Pages</span></h1>
-        <div class="info">
-            ✅ Consulta de DNI usando el endpoint correcto
-        </div>
-        <p>Ingresa el DNI para obtener nombre y apellidos</p>
-        
-        <div>
-            <input type="text" id="dniInput" placeholder="Ej: 45789865" maxlength="8" value="45789865">
-            <button onclick="consultarDNI()">Buscar</button>
-        </div>
-        
-        <div class="loading" id="loading">⏳ Consultando...</div>
-        <div class="error" id="error"></div>
-        <div class="result" id="resultado">
-            <h3>✅ Datos del huésped</h3>
-            <p><strong>DNI:</strong> <span id="dniDisplay"></span></p>
-            <p><strong>Nombres:</strong> <span id="nombresDisplay"></span></p>
-            <p><strong>Apellido Paterno:</strong> <span id="paternoDisplay"></span></p>
-            <p><strong>Apellido Materno:</strong> <span id="maternoDisplay"></span></p>
-            <p><strong>Nombre Completo:</strong> <span id="completoDisplay"></span></p>
-        </div>
-    </div>
 
-    <script>
-        // 🔑 TU API KEY (copia la que ves en tu panel)
-        const API_KEY = 'c9fce1d6a32f5b5d0ca986f76595508c';
-        
-        // URL con el formato correcto para DNI
-        const BASE_URL = 'https://peruapi.com/api.php?json=dni&id=';
-        const PROXY = 'https://corsproxy.io/?';
-        const API_URL = PROXY + encodeURIComponent(BASE_URL);
+  <div class="box">
+    <h3>Consulta DNI</h3>
+    <input type="text" id="dniInput" placeholder="DNI (8 dígitos)" maxlength="8">
+    <button onclick="buscar()">Consultar</button>
+    <pre id="output">// Resultado aquí...</pre>
+  </div>
 
-        async function consultarDNI() {
-            const dni = document.getElementById('dniInput').value.trim();
-            
-            if (!dni || dni.length !== 8 || isNaN(dni)) {
-                mostrarError('⚠️ Ingresa un DNI válido de 8 dígitos');
-                return;
-            }
+  <script>
+    async function buscar() {
+      const dni = document.getElementById('dniInput').value.trim();
+      const output = document.getElementById('output');
 
-            ocultarTodo();
-            document.getElementById('loading').style.display = 'block';
+      if (dni.length !== 8) {
+        output.textContent = 'Ingresa un DNI de 8 dígitos.';
+        return;
+      }
 
-            try {
-                // Construir URL con DNI y API Key
-                const url = `${API_URL}${dni}&api_token=${API_KEY}`;
-                console.log('Consultando:', url);
-                
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
+      output.textContent = 'Consultando...';
 
-                if (data.code === 401) {
-                    throw new Error('❌ API Key inválida. Revisa tu clave en el panel.');
-                }
+      try {
+        // Llama a la Serverless Function
+        const res = await fetch(`/api/dni?dni=${dni}`);
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = 'Error: ' + err.message;
+      }
+    }
+  </script>
 
-                if (data.code !== 200) {
-                    throw new Error(data.mensaje || 'Error al consultar');
-                }
-
-                mostrarResultado(data);
-
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarError(`❌ ${error.message}`);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
-
-        function mostrarResultado(data) {
-            document.getElementById('dniDisplay').textContent = data.dni || 'N/A';
-            document.getElementById('nombresDisplay').textContent = data.nombres || 'N/A';
-            document.getElementById('paternoDisplay').textContent = data.apellido_paterno || 'N/A';
-            document.getElementById('maternoDisplay').textContent = data.apellido_materno || 'N/A';
-            document.getElementById('completoDisplay').textContent = data.cliente || 'N/A';
-            document.getElementById('resultado').style.display = 'block';
-        }
-
-        function mostrarError(msg) {
-            document.getElementById('error').textContent = msg;
-            document.getElementById('error').style.display = 'block';
-        }
-
-        function ocultarTodo() {
-            document.getElementById('resultado').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        document.getElementById('dniInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') consultarDNI();
-        });
-    </script>
 </body>
 </html>
